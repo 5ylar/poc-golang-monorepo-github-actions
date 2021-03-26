@@ -15,22 +15,60 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
 
-    - name: Extract tag name
-      id: tag
+    - name: Extract service name
+      id: serviceName
       uses: actions/github-script@v3
       with:
         # github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          return context.payload.ref.replace(/\/refs\/tags\//, '');
+          const { ref } = context.payload
 
-    - name: Echo
-      run: echo ${{ steps.tag.outputs.result }}
+          const refWithoutPrefix = ref.replace(/^refs\/tags\//,'').ref.replace(/^refs\/heads\/service\//,'')
+          const serviceName = refWithoutPrefix.replace(/v[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}$/,'')
+
+          switch(tagNameWithoutVersion) {
+              case 'service-user': return 'user'
+              case 'service-foo': return 'foo'
+              default:
+                return null
+          }
+
+    - name: Extract deploy env
+      id: deployEnv
+      uses: actions/github-script@v3
+      with:
+        # github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { ref } = context.payload
+
+          if (/^\/refs\/tags\//g.test(ref)) return 'production'
+          
+          if (/^refs\/heads\/service\//g.test(ref)) return 'uat'
+
+          if (/^refs\/heads\/dev-service\//g.test(ref)) return 'development'
+
+    # - name: Extract tag name
+    #   id: tag
+    #   uses: actions/github-script@v3
+    #   with:
+    #     # github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     script: |
+    #       if (context.payload.ref.replace(/\/refs\/tags\//, '') == ) {
+
+    #       }
+    #       return context.payload.ref.replace(/\/refs\/tags\//, '');
+
+    - name: Echo serviceName
+      run: echo ${{ steps.serviceName.outputs.result }}
+
+    - name: Echo deployEnv
+      run: echo ${{ steps.deployEnv.outputs.result }}
 
     - name: Install Go
       uses: actions/setup-go@v2
-      with:
-        go-version: ${{ matrix.go-version }}
-        os: ubuntu-latest
+      # with:
+      #   go-version: ${{ matrix.go-version }}
+      #   os: ubuntu-latest
     
     - name: Checkout code
       uses: actions/checkout@v2
