@@ -78,7 +78,8 @@ jobs:
       run: echo ${{ steps.deployEnv.outputs.result }}
 
     - name: Exit if not found service name or deployment environment
-      if: ${{ steps.serviceName.outputs.result == '' }}
+      # if: ${{ steps.deployEnv.outputs.result == '' || steps.serviceName.outputs.result == '' }}
+      if: steps.deployEnv.outputs.result == ''
       run: exit_with_success
 
     - name: Install Go
