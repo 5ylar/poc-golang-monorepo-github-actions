@@ -98,15 +98,18 @@ jobs:
 
     - name: Build and push
       uses: docker/build-push-action@v2
+      env:
+        SERVICE_NAME: ${{ steps.serviceName.outputs.result }}
+        DEPLOY_ENV: ${{ steps.deployEnv.outputs.result }}
       with:
         context: .
         # pull: true
         push: true
         build-args: |
-          NAME=$steps.serviceName.outputs.result
+          NAME=$SERVICE_NAME
         # cache-from: type=registry,ref=myorg/myrepository:latest
         # cache-to: type=inline
-        tags: gcr.io/$PROJECT_ID/$steps.deployEnv.outputs.result/$steps.serviceName.outputs.result:$GITHUB_SHA
+        tags: gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
         # tags: myorg/myrepository:latest
 
     # # Build and push image to Google Container Registry
