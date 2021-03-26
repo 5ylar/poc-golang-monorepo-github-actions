@@ -51,7 +51,7 @@ jobs:
               case 'user': return 'user'
               case 'foo': return 'foo'
               default:
-                return null
+                return ''
           }
 
     - name: Extract deploy env
@@ -68,7 +68,7 @@ jobs:
           if (/^refs\/heads\/service\//g.test(ref)) return 'uat'
           if (/^refs\/heads\/dev-service\//g.test(ref)) return 'development'
 
-          return null
+          return ''
 
     # ------ DEBUG ------ 
     - name: Echo serviceName
@@ -78,6 +78,7 @@ jobs:
       run: echo ${{ steps.deployEnv.outputs.result }}
 
     - name: Exit if not found service name or deployment environment
+      if: steps.deployEnv.outputs.result == '' || steps.serviceName.outputs.result == ''
       run: exit_with_success
 
     - name: Install Go
