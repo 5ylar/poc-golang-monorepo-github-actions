@@ -1,10 +1,10 @@
 FROM golang:alpine
 WORKDIR /app
 
-ARG NAME
+ARG _NAME
 
 COPY . .
 
-RUN go build -o app services/$NAME/main.go
+RUN go build -o app services/$_NAME/main.go
 
 CMD ./app
