@@ -14,8 +14,8 @@ jobs:
       with:
         go-version: ${{ matrix.go-version }}
         os: ubuntu-latest
-    # - name: Checkout code
-    #   uses: actions/checkout@v2
+    - name: Checkout code
+      uses: master
     - name: List all
       run: ls -la
     - name: Run test
