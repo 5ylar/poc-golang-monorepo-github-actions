@@ -30,7 +30,6 @@ jobs:
       id: serviceNameAndDeployEnv
       uses: actions/github-script@v3
       with:
-        # github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           /* 
             eg. 
@@ -104,7 +103,7 @@ jobs:
         SERVICE_NAME: ${{ steps.serviceNameAndDeployEnv.outputs.serviceName }}
         DEPLOY_ENV: ${{ steps.serviceNameAndDeployEnv.outputs.deployEnv }}
       run: |
-        docker build -t gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
+        docker build --build-arg NAME=$SERVICE_NAME -t gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
         docker push gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
       # with:
       #   context: .
