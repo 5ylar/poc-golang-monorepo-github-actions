@@ -99,8 +99,8 @@ jobs:
     - name: Build and push
       # uses: docker/build-push-action@v2
       env:
-        SERVICE_NAME: ${{steps.serviceName.outputs.result}}
-        DEPLOY_ENV: ${{steps.deployEnv.outputs.result}}
+        SERVICE_NAME: ${{steps.serviceName.outputs.text}}
+        DEPLOY_ENV: ${{steps.deployEnv.outputs.text}}
       run: |
         docker build -t gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
         docker push gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
