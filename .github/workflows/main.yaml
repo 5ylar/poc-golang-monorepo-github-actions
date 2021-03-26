@@ -106,7 +106,7 @@ jobs:
           NAME=${{ steps.serviceName.outputs.result }}
         # cache-from: type=registry,ref=myorg/myrepository:latest
         # cache-to: type=inline
-        tags: gcr.io/$PROJECT_ID/${{ steps.deployEnv.outputs.result }}/${{ steps.serviceName.outputs.result }}:$GITHUB_SHA
+        tags: gcr.io/$PROJECT_ID/$steps.deployEnv.outputs.result/$steps.serviceName.outputs.result:$GITHUB_SHA
         # tags: myorg/myrepository:latest
 
     # # Build and push image to Google Container Registry
