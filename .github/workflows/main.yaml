@@ -102,5 +102,5 @@ jobs:
         gcloud builds submit \
           --quiet \
           --tag "gcr.io/$PROJECT_ID/${{ steps.deployEnv.outputs.result }}/${{ steps.serviceName.outputs.result }}:$GITHUB_SHA"
-          --substitutions=TAG_NAME=${{ steps.serviceName.outputs.result }}
+          --substitutions NAME=${{ steps.serviceName.outputs.result }}
 
