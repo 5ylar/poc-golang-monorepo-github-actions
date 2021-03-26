@@ -26,8 +26,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
 
-    - name: Extract service name
-      id: serviceName
+    - name: Extract service name and deploy env
+      id: serviceNameAndDeployEnv
       uses: actions/github-script@v3
       with:
         # github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -39,6 +39,7 @@ jobs:
             - production  => refs/tags/userv1.2.2
           */
 
+          const core = require('@actions/core');
           const { ref } = context.payload
 
           const refWithoutPrefix = ref
@@ -49,32 +50,54 @@ jobs:
           const serviceName = refWithoutPrefix.replace(/v[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}$/,'')
 
           switch(serviceName) {
-              case 'user': return 'user'
-              case 'foo': return 'foo'
+              case 'user': {
+                core.setOutput('serviceName', 'user')
+                return
+              }
+              case 'foo': {
+                core.setOutput('serviceName', 'foo')
+                return
+              }
               default:
                 return ''
           }
 
-    - name: Extract deploy env
-      id: deployEnv
-      uses: actions/github-script@v3
-      with:
-        # github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const { ref } = context.payload
-
-          console.log("ref",ref)
-
-          if (/^\/refs\/tags\//g.test(ref)) return 'production'
-          if (/^refs\/heads\/service\//g.test(ref)) return 'uat'
-          if (/^refs\/heads\/dev-service\//g.test(ref)) return 'development'
+          if (/^\/refs\/tags\//g.test(ref)) {
+            core.setOutput('deployEnv', 'production')
+            return
+          } else  if (/^refs\/heads\/service\//g.test(ref)) {
+            core.setOutput('deployEnv', 'uat')
+            return
+          } else if (/^refs\/heads\/dev-service\//g.test(ref)) {
+            core.setOutput('deployEnv', 'development')
+            return 
+          }
 
           return ''
+
+    # - name: Extract deploy env
+    #   id: deployEnv
+    #   uses: actions/github-script@v3
+    #   with:
+    #     # github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     script: |
+    #       const core = require('@actions/core');
+    #       const { ref } = context.payload
+
+    #       if (/^\/refs\/tags\//g.test(ref)) {
+    #         core.setOutput("deployEnv", time);
+    #       } else  if (/^refs\/heads\/service\//g.test(ref)) {
+    #         return 'uat'
+    #       } else if (/^refs\/heads\/dev-service\//g.test(ref)) {
+    #         return 
+    #       }
+
+    #       return ''
 
     - name: Exit if not found service name or deployment environment
       # if: ${{ steps.deployEnv.outputs.result == '' || steps.serviceName.outputs.result == '' }}
       run: |
-        if [ ${{ steps.deployEnv.outputs.result }} = '' ] || [ ${{ steps.serviceName.outputs.result }} = '' ]
+        if [ ${{ steps.serviceNameAndDeployEnv.outputs.result }} = '' ]
         then
           exit_with_success
         fi
