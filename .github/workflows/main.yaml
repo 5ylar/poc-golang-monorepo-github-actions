@@ -70,12 +70,12 @@ jobs:
 
           return ''
 
-    # ------ DEBUG ------ 
-    - name: Echo serviceName
-      run: echo ${{ steps.serviceName.outputs.result }}
+    # # ------ DEBUG ------ 
+    # - name: Echo serviceName
+    #   run: echo ${{ steps.serviceName.outputs.result }}
 
-    - name: Echo deployEnv
-      run: echo ${{ steps.deployEnv.outputs.result }}
+    # - name: Echo deployEnv
+    #   run: echo ${{ steps.deployEnv.outputs.result }}
 
     - name: Exit if not found service name or deployment environment
       # if: ${{ steps.deployEnv.outputs.result == '' || steps.serviceName.outputs.result == '' }}
