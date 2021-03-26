@@ -71,16 +71,8 @@ jobs:
 
           return ''
 
-    # # ------ DEBUG ------ 
-    # - name: Echo serviceName
-    #   run: echo ${{ steps.serviceName.outputs.result }}
-
-    # - name: Echo deployEnv
-    #   run: echo ${{ steps.deployEnv.outputs.result }}
-
     - name: Exit if not found service name or deployment environment
       # if: ${{ steps.deployEnv.outputs.result == '' || steps.serviceName.outputs.result == '' }}
-      # if: steps.deployEnv.outputs.result == ''
       run: |
         if [ ${{ steps.deployEnv.outputs.result }} = '' ] || [ ${{ steps.serviceName.outputs.result }} = '' ]
         then
@@ -109,5 +101,6 @@ jobs:
       run: |-
         gcloud builds submit \
           --quiet \
-          --tag "gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA"
+          --tag "gcr.io/$PROJECT_ID/${{ steps.deployEnv.outputs.result }}/${{ steps.serviceName.outputs.result }}:$GITHUB_SHA"
+          --substitutions=TAG_NAME=${{ steps.serviceName.outputs.result }}
 
