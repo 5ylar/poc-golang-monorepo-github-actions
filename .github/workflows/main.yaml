@@ -15,5 +15,5 @@ jobs:
         os: ubuntu-latest
     # - name: Checkout code
     #   uses: actions/checkout@v2
-    - name: Test
-      run: go test ./...
+    - name: Run test
+      run: go run services/user/main.go
