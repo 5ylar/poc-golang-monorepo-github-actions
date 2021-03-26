@@ -88,9 +88,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: TEST
-      run: docker ps
-
     # Setup gcloud CLI
     - uses: google-github-actions/setup-gcloud@master
       with:
@@ -100,19 +97,22 @@ jobs:
         project_id: ${{ secrets.RUN_PROJECT }}
 
     - name: Build and push
-      uses: docker/build-push-action@v2
+      # uses: docker/build-push-action@v2
       env:
         SERVICE_NAME: ${{ steps.serviceName.outputs.result }}
         DEPLOY_ENV: ${{ steps.deployEnv.outputs.result }}
-      with:
-        context: .
-        # pull: true
-        push: true
-        build-args: |
-          NAME=$SERVICE_NAME
-        # cache-from: type=registry,ref=myorg/myrepository:latest
-        # cache-to: type=inline
-        tags: gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
+      run: |
+        docker build -t gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
+        docker push gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
+      # with:
+      #   context: .
+      #   # pull: true
+      #   push: true
+      #   build-args: |
+      #     NAME=$SERVICE_NAME
+      #   # cache-from: type=registry,ref=myorg/myrepository:latest
+      #   # cache-to: type=inline
+      #   tags: gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
         # tags: myorg/myrepository:latest
 
     # # Build and push image to Google Container Registry
