@@ -39,7 +39,6 @@ jobs:
             - production  => refs/tags/userv1.2.2
           */
 
-          const core = require('@actions/core');
           const { ref } = context.payload
 
           const refWithoutPrefix = ref
