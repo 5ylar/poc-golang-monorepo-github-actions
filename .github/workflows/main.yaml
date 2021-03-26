@@ -61,6 +61,8 @@ jobs:
         script: |
           const { ref } = context.payload
 
+          console.log("ref",ref)
+
           if (/^\/refs\/tags\//g.test(ref)) return 'production'
           if (/^refs\/heads\/service\//g.test(ref)) return 'uat'
           if (/^refs\/heads\/dev-service\//g.test(ref)) return 'development'
