@@ -3,6 +3,7 @@ name: MonoRepo
 on:
   push:
     branches:
+      - main
       - service/user
       - dev-service/user
   pull_request:
