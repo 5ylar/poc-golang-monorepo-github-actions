@@ -48,31 +48,30 @@ jobs:
 
           const serviceName = refWithoutPrefix.replace(/v[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}$/,'')
 
+          core.setOutput('exit', 'false')
+
           switch(serviceName) {
               case 'user': {
                 core.setOutput('serviceName', 'user')
-                return
               }
               case 'foo': {
                 core.setOutput('serviceName', 'foo')
-                return
               }
               default:
-                return ''
+                core.setOutput('exit', 'true')
+                return
           }
 
           if (/^\/refs\/tags\//g.test(ref)) {
             core.setOutput('deployEnv', 'production')
-            return
           } else  if (/^refs\/heads\/service\//g.test(ref)) {
             core.setOutput('deployEnv', 'uat')
-            return
           } else if (/^refs\/heads\/dev-service\//g.test(ref)) {
             core.setOutput('deployEnv', 'development')
-            return 
+          } else {
+            core.setOutput('exit', 'true')
+            return
           }
-
-          return ''
 
     # - name: Extract deploy env
     #   id: deployEnv
@@ -96,7 +95,7 @@ jobs:
     - name: Exit if not found service name or deployment environment
       # if: ${{ steps.deployEnv.outputs.result == '' || steps.serviceName.outputs.result == '' }}
       run: |
-        if [ ${{ steps.serviceNameAndDeployEnv.outputs.result }} = '' ]
+        if [ ${{ steps.serviceNameAndDeployEnv.outputs.exit }} = 'true' ]
         then
           exit_with_success
         fi
@@ -121,8 +120,8 @@ jobs:
     - name: Build and push
       # uses: docker/build-push-action@v2
       env:
-        SERVICE_NAME: ${{steps.serviceNameAndDeployEnv.outputs.serviceName}}
-        DEPLOY_ENV: ${{steps.serviceNameAndDeployEnv.outputs.deployEnv}}
+        SERVICE_NAME: ${{ steps.serviceNameAndDeployEnv.outputs.serviceName }}
+        DEPLOY_ENV: ${{ steps.serviceNameAndDeployEnv.outputs.deployEnv }}
       run: |
         docker build -t gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
         docker push gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
