@@ -1,5 +1,14 @@
-on: [push, pull_request]
 name: MonoRepo
+
+on:
+  push:
+    branches:
+      - service/user
+      - dev-service/user
+  pull_request:
+    branches:
+      - service/user
+      - dev-service/user
 
 env:
   PROJECT_ID: ${{ secrets.RUN_PROJECT }}
@@ -27,7 +36,7 @@ jobs:
             - uat         => refs/heads/service/user
             - production  => refs/tags/userv1.2.2
           */
-          
+
           const { ref } = context.payload
 
           const refWithoutPrefix = ref
@@ -53,27 +62,20 @@ jobs:
           const { ref } = context.payload
 
           if (/^\/refs\/tags\//g.test(ref)) return 'production'
-          
           if (/^refs\/heads\/service\//g.test(ref)) return 'uat'
-
           if (/^refs\/heads\/dev-service\//g.test(ref)) return 'development'
 
-    # - name: Extract tag name
-    #   id: tag
-    #   uses: actions/github-script@v3
-    #   with:
-    #     # github-token: ${{ secrets.GITHUB_TOKEN }}
-    #     script: |
-    #       if (context.payload.ref.replace(/\/refs\/tags\//, '') == ) {
+          return null
 
-    #       }
-    #       return context.payload.ref.replace(/\/refs\/tags\//, '');
-
+    /* ------ DEBUG ------ */
     - name: Echo serviceName
       run: echo ${{ steps.serviceName.outputs.result }}
 
     - name: Echo deployEnv
       run: echo ${{ steps.deployEnv.outputs.result }}
+
+    - name: Exit if not found service name or deployment environment
+      run: exit_with_success
 
     - name: Install Go
       uses: actions/setup-go@v2
