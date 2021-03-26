@@ -14,6 +14,18 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
+
+    - name: Extract tag name
+        id: tag
+        uses: actions/github-script@v3
+        with:
+          # github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            return context.payload.ref.replace(/\/refs\/tags\//, '');
+
+    - name: Echo
+      run: echo ${{ steps.tag.outputs.result }}
+
     - name: Install Go
       uses: actions/setup-go@v2
       with:
@@ -22,9 +34,6 @@ jobs:
     
     - name: Checkout code
       uses: actions/checkout@v2
-    
-    - name: Run test
-      run: go run services/user/main.go
     
     # Setup gcloud CLI
     - uses: google-github-actions/setup-gcloud@master
