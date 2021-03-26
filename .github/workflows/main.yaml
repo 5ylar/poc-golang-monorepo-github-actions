@@ -67,7 +67,7 @@ jobs:
 
           return null
 
-    /* ------ DEBUG ------ */
+    # ------ DEBUG ------ 
     - name: Echo serviceName
       run: echo ${{ steps.serviceName.outputs.result }}
 
