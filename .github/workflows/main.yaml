@@ -26,7 +26,7 @@ jobs:
           const refWithoutPrefix = ref.replace(/^refs\/tags\//,'').replace(/^refs\/heads\/service\//,'')
           const serviceName = refWithoutPrefix.replace(/v[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}$/,'')
 
-          switch(tagNameWithoutVersion) {
+          switch(serviceName) {
               case 'service-user': return 'user'
               case 'service-foo': return 'foo'
               default:
