@@ -81,7 +81,7 @@ jobs:
       # if: ${{ steps.deployEnv.outputs.result == '' || steps.serviceName.outputs.result == '' }}
       # if: steps.deployEnv.outputs.result == ''
       run: |
-        if [ steps.deployEnv.outputs.result = '' ] || [ steps.serviceName.outputs.result = '' ]
+        if [ ${{ steps.deployEnv.outputs.result }} = '' ] || [ ${{ steps.serviceName.outputs.result }} = '' ]
         then
           exit_with_success
         fi
