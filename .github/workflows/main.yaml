@@ -51,12 +51,12 @@ jobs:
           core.setOutput('exit', 'false')
 
           switch(serviceName) {
-              case 'user': {
+              case 'user':
                 core.setOutput('serviceName', 'user')
-              }
-              case 'foo': {
+                break
+              case 'foo':
                 core.setOutput('serviceName', 'foo')
-              }
+                break
               default:
                 core.setOutput('exit', 'true')
                 return
@@ -72,25 +72,6 @@ jobs:
             core.setOutput('exit', 'true')
             return
           }
-
-    # - name: Extract deploy env
-    #   id: deployEnv
-    #   uses: actions/github-script@v3
-    #   with:
-    #     # github-token: ${{ secrets.GITHUB_TOKEN }}
-    #     script: |
-    #       const core = require('@actions/core');
-    #       const { ref } = context.payload
-
-    #       if (/^\/refs\/tags\//g.test(ref)) {
-    #         core.setOutput("deployEnv", time);
-    #       } else  if (/^refs\/heads\/service\//g.test(ref)) {
-    #         return 'uat'
-    #       } else if (/^refs\/heads\/dev-service\//g.test(ref)) {
-    #         return 
-    #       }
-
-    #       return ''
 
     - name: Exit if not found service name or deployment environment
       # if: ${{ steps.deployEnv.outputs.result == '' || steps.serviceName.outputs.result == '' }}
