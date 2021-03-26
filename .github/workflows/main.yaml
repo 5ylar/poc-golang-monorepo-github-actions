@@ -79,8 +79,12 @@ jobs:
 
     - name: Exit if not found service name or deployment environment
       # if: ${{ steps.deployEnv.outputs.result == '' || steps.serviceName.outputs.result == '' }}
-      if: steps.deployEnv.outputs.result == ''
-      run: exit_with_success
+      # if: steps.deployEnv.outputs.result == ''
+      run: |
+        if [ steps.deployEnv.outputs.result = '' ] || [ steps.serviceName.outputs.result = '' ]
+        then
+          exit_with_success
+        fi
 
     - name: Install Go
       uses: actions/setup-go@v2
