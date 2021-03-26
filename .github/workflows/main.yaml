@@ -105,6 +105,7 @@ jobs:
         SA_KEY: $secrets.RUN_SA_KEY
       run: |
         echo $SA_KEY > keyfile.json
+        cat keyfile.json
         docker login -u _json_key --password-stdin https://gcr.io < keyfile.json
         docker build --build-arg NAME=$SERVICE_NAME -t gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
         docker push gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
