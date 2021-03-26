@@ -21,14 +21,25 @@ jobs:
       with:
         # github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
+          /* 
+            eg. 
+            - development => refs/heads/dev-service/user
+            - uat         => refs/heads/service/user
+            - production  => refs/tags/userv1.2.2
+          */
+          
           const { ref } = context.payload
 
-          const refWithoutPrefix = ref.replace(/^refs\/tags\//,'').replace(/^refs\/heads\/service\//,'')
+          const refWithoutPrefix = ref
+            .replace(/^refs\/tags\//,'')
+            .replace(/^refs\/heads\/service\//,'')
+            .replace(/^refs\/heads\/dev-service\//,'')
+
           const serviceName = refWithoutPrefix.replace(/v[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}$/,'')
 
           switch(serviceName) {
-              case 'service-user': return 'user'
-              case 'service-foo': return 'foo'
+              case 'user': return 'user'
+              case 'foo': return 'foo'
               default:
                 return null
           }
