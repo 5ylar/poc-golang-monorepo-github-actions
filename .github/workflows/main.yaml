@@ -23,7 +23,7 @@ jobs:
         script: |
           const { ref } = context.payload
 
-          const refWithoutPrefix = ref.replace(/^refs\/tags\//,'').ref.replace(/^refs\/heads\/service\//,'')
+          const refWithoutPrefix = ref.replace(/^refs\/tags\//,'').replace(/^refs\/heads\/service\//,'')
           const serviceName = refWithoutPrefix.replace(/v[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}$/,'')
 
           switch(tagNameWithoutVersion) {
