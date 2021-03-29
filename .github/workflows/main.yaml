@@ -13,7 +13,7 @@ on:
       - dev-service/user
 
 env:
-  PROJECT_ID: ${{ secrets.RUN_PROJECT }}
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   SERVICE_NAME:  ${{ secrets.SERVICE_NAME }}
 
 jobs:
@@ -89,20 +89,20 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # Setup gcloud CLI
-    - uses: google-github-actions/setup-gcloud@master
+    - name: Setup gcloud CLI
+      uses: google-github-actions/setup-gcloud@master
       with:
         version: '286.0.0'
-        service_account_email: ${{ secrets.RUN_SA_EMAIL }}
-        service_account_key: ${{ secrets.RUN_SA_KEY }}
-        project_id: ${{ secrets.RUN_PROJECT }}
+        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
 
 #        echo $SA_KEY > keyfile.json
 #        cat keyfile.json
 #        docker login -u _json_key --password-stdin https://gcr.io < keyfile.json
 
 #        env | grep SA_KEY
-#        echo "${{ secrets.RUN_SA_KEY }}" > keyfile.json
+#        echo "${{ secrets.GCP_SA_KEY }}" > keyfile.json
 #        ls -la
 #        gcloud auth activate-service-account kmitl-305310@$PROJECT_ID.iam.gserviceaccount.com --key-file=keyfile.json
 
@@ -111,11 +111,25 @@ jobs:
       env:
         SERVICE_NAME: ${{ steps.serviceNameAndDeployEnv.outputs.serviceName }}
         DEPLOY_ENV: ${{ steps.serviceNameAndDeployEnv.outputs.deployEnv }}
-        SA_KEY: ${{ secrets.RUN_SA_KEY }}
       run: |
         gcloud auth configure-docker
         docker build --build-arg NAME=$SERVICE_NAME -t gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
         docker push gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
+
+
+    - name: Set GKE credential
+      uses: google-github-actions/get-gke-credentials@v0.2.1
+      with:
+        cluster_name: ${{ secrets.GKE_CLUSTER }}
+        location: ${{ secrets.GKE_ZONE }}
+        credentials: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Deploy to GKE cluster
+      run: |
+        kubectl cluster-info
+        kubectl get all
+    
+
       # with:
       #   context: .
       #   # pull: true
