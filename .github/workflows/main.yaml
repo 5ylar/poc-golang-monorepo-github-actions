@@ -112,7 +112,6 @@ jobs:
         SERVICE_NAME: ${{ steps.serviceNameAndDeployEnv.outputs.serviceName }}
         DEPLOY_ENV: ${{ steps.serviceNameAndDeployEnv.outputs.deployEnv }}
         SA_KEY: ${{ secrets.RUN_SA_KEY }}
-        SA_KEY: ${{ secrets.RUN_SA_KEY }}
       run: |
         
         docker build --build-arg NAME=$SERVICE_NAME -t gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
