@@ -3,18 +3,24 @@ name: MonoRepo
 on:
   push:
     branches:
-      - main
       - service/user
+      - service/foo
       - dev-service/user
+      - dev-service/foo
   pull_request:
     branches:
-      - main
       - service/user
       - dev-service/user
+      - dev-service/foo
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   SERVICE_NAME:  ${{ secrets.SERVICE_NAME }}
+  GCP_SA_EMAIL:  ${{ secrets.GCP_SA_EMAIL }}
+  GCP_SA_KEY:  ${{ secrets.GCP_SA_KEY }}
+  GCP_PROJECT_ID:  ${{ secrets.GCP_PROJECT_ID }}
+  GKE_CLUSTER:  ${{ secrets.GKE_CLUSTER }}
+  GKE_ZONE:  ${{ secrets.GKE_ZONE }}
+  GCP_SA_KEY:  ${{ secrets.GCP_SA_KEY }}
 
 jobs:
   test:
@@ -93,9 +99,9 @@ jobs:
       uses: google-github-actions/setup-gcloud@master
       with:
         version: '286.0.0'
-        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_email: ${{ env.GCP_SA_EMAIL }}
+        service_account_key: ${{ env.GCP_SA_KEY }}
+        project_id: ${{ env.GCP_PROJECT_ID }}
 
 #        echo $SA_KEY > keyfile.json
 #        cat keyfile.json
@@ -104,7 +110,7 @@ jobs:
 #        env | grep SA_KEY
 #        echo "${{ secrets.GCP_SA_KEY }}" > keyfile.json
 #        ls -la
-#        gcloud auth activate-service-account kmitl-305310@$PROJECT_ID.iam.gserviceaccount.com --key-file=keyfile.json
+#        gcloud auth activate-service-account kmitl-305310@$GCP_PROJECT_ID.iam.gserviceaccount.com --key-file=keyfile.json
 
       # uses: docker/build-push-action@v2
     - name: Build and push
@@ -113,16 +119,19 @@ jobs:
         DEPLOY_ENV: ${{ steps.serviceNameAndDeployEnv.outputs.deployEnv }}
       run: |
         gcloud auth configure-docker
-        docker build --build-arg NAME=$SERVICE_NAME -t gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
-        docker push gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
+        docker build --build-arg NAME=$SERVICE_NAME -t gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
+        docker push gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
 
 
+    # gcloud container clusters get-credentials autopilot-cluster-1 --region us-central1 --project kmitl-305310
     - name: Set GKE credential
-      uses: google-github-actions/get-gke-credentials@v0.2.1
-      with:
-        cluster_name: ${{ secrets.GKE_CLUSTER }}
-        location: ${{ secrets.GKE_ZONE }}
-        credentials: ${{ secrets.GCP_SA_KEY }}
+      run: |
+        gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_ZONE --project $GCP_PROJECT_ID
+      # uses: google-github-actions/get-gke-credentials@v0.2.1
+      # with:
+      #   cluster_name: ${{ secrets.GKE_CLUSTER }}
+      #   location: ${{ secrets.GKE_ZONE }}
+      #   credentials: ${{ secrets.GCP_SA_KEY }}
 
     - name: Deploy to GKE cluster
       run: |
@@ -138,7 +147,7 @@ jobs:
       #     NAME=$SERVICE_NAME
       #   # cache-from: type=registry,ref=myorg/myrepository:latest
       #   # cache-to: type=inline
-      #   tags: gcr.io/$PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
+      #   tags: gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
         # tags: myorg/myrepository:latest
 
     # # Build and push image to Google Container Registry
@@ -146,6 +155,6 @@ jobs:
     #   run: |-
     #     gcloud builds submit \
     #       --quiet \
-    #       --tag "gcr.io/$PROJECT_ID/${{ steps.deployEnv.outputs.result }}/${{ steps.serviceName.outputs.result }}:$GITHUB_SHA"
+    #       --tag "gcr.io/$GCP_PROJECT_ID/${{ steps.deployEnv.outputs.result }}/${{ steps.serviceName.outputs.result }}:$GITHUB_SHA"
     #       --substitutions _NAME=${{ steps.serviceName.outputs.result }}
 
