@@ -133,9 +133,14 @@ jobs:
       #   credentials: ${{ secrets.GCP_SA_KEY }}
 
     - name: Deploy to GKE cluster
+      env:
+        SERVICE_NAME: ${{ steps.serviceNameAndDeployEnv.outputs.serviceName }}
+        DEPLOY_ENV: ${{ steps.serviceNameAndDeployEnv.outputs.deployEnv }}
       run: |
         kubectl cluster-info
-        kubectl get all
+        kubectl set image deployment/$SERVICE_NAME-$DEPLOY_ENV user=gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA --record
+        kubectl rollout status deployment/$SERVICE_NAME-$DEPLOY_ENV --timeout=30s
+
     
 
       # with:
