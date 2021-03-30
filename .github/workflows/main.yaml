@@ -21,144 +21,128 @@ env:
   GKE_CLUSTER:  ${{ secrets.GKE_CLUSTER }}
   GKE_ZONE:  ${{ secrets.GKE_ZONE }}
 
+# DEVELOPMENT_GCP_PROJECT_ID
+# DEVELOPMENT_GCP_SA_EMAIL
+# DEVELOPMENT_GCP_SA_KEY
+# DEVELOPMENT_GKE_CLUSTER
+# DEVELOPMENT_GKE_ZONE
+
 jobs:
-  test:
-    strategy:
-      matrix:
-        go-version: [1.16.x]
-        # os: [ubuntu-latest, macos-latest, windows-latest]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+  app:
     steps:
+      - name: Import Secrets
+        uses: hashicorp/vault-action
+        with:
+          url: https://vault.api-fillgoods.com
+          # /ui/vault/secrets/kv/show/poc-github-actions
+          method: token
+          # caCertificate: ${{ secrets.VAULTCA }}
+          token: ${{ secrets.VAULT_TOKEN }}
 
-    - name: Extract service name and deploy env
-      id: serviceNameAndDeployEnv
-      uses: actions/github-script@v3
-      with:
-        script: |
-          /* 
-            eg. 
-            - development => refs/heads/dev-service/user
-            - uat         => refs/heads/service/user
-            - production  => refs/tags/userv1.2.2
-          */
 
-          const { ref } = context.payload
 
-          const refWithoutPrefix = ref
-            .replace(/^refs\/tags\//,'')
-            .replace(/^refs\/heads\/service\//,'')
-            .replace(/^refs\/heads\/dev-service\//,'')
 
-          const serviceName = refWithoutPrefix.replace(/v[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}$/,'')
 
-          core.setOutput('exit', 'false')
 
-          switch(serviceName) {
-              case 'user':
-                core.setOutput('serviceName', 'user')
-                break
-              case 'foo':
-                core.setOutput('serviceName', 'foo')
-                break
-              default:
-                core.setOutput('exit', 'true')
-                return
-          }
 
-          if (/^\/refs\/tags\//g.test(ref)) {
-            core.setOutput('deployEnv', 'production')
-          } else  if (/^refs\/heads\/service\//g.test(ref)) {
-            core.setOutput('deployEnv', 'uat')
-          } else if (/^refs\/heads\/dev-service\//g.test(ref)) {
-            core.setOutput('deployEnv', 'development')
-          } else {
-            core.setOutput('exit', 'true')
-            return
-          }
 
-    - name: Exit if not found service name or deployment environment
-      # if: ${{ steps.deployEnv.outputs.result == '' || steps.serviceName.outputs.result == '' }}
-      run: |
-        if [ ${{ steps.serviceNameAndDeployEnv.outputs.exit }} = 'true' ]
-        then
-          exit_with_success
-        fi
 
-    - name: Install Go
-      uses: actions/setup-go@v2
-      # with:
-      #   go-version: ${{ matrix.go-version }}
-      #   os: ubuntu-latest
+
+# jobs:
+#   app:
+#     strategy:
+#       matrix:
+#         # go-version: [1.16.x]
+#         # os: [ubuntu-latest, macos-latest, windows-latest]
+#         os: [ubuntu-latest]
+#     runs-on: ${{ matrix.os }}
+#     steps:
+
+#     - name: Extract service name and deploy env
+#       id: serviceNameAndDeployEnv
+#       uses: actions/github-script@v3
+#       with:
+#         script: |
+#           /* 
+#             eg. 
+#             - development => refs/heads/dev-service/user
+#             - uat         => refs/heads/service/user
+#             - production  => refs/tags/userv1.2.2
+#           */
+
+#           const { ref } = context.payload
+
+#           const refWithoutPrefix = ref
+#             .replace(/^refs\/tags\//,'')
+#             .replace(/^refs\/heads\/service\//,'')
+#             .replace(/^refs\/heads\/dev-service\//,'')
+
+#           const serviceName = refWithoutPrefix.replace(/v[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}$/,'')
+
+#           core.setOutput('exit', 'false')
+
+#           switch(serviceName) {
+#               case 'user':
+#                 core.setOutput('serviceName', 'user')
+#                 break
+#               case 'foo':
+#                 core.setOutput('serviceName', 'foo')
+#                 break
+#               default:
+#                 core.setOutput('exit', 'true')
+#                 return
+#           }
+
+#           if (/^\/refs\/tags\//g.test(ref)) {
+#             core.setOutput('deployEnv', 'production')
+#           } else  if (/^refs\/heads\/service\//g.test(ref)) {
+#             core.setOutput('deployEnv', 'uat')
+#           } else if (/^refs\/heads\/dev-service\//g.test(ref)) {
+#             core.setOutput('deployEnv', 'development')
+#           } else {
+#             core.setOutput('exit', 'true')
+#             return
+#           }
+#   
+#     - name: Exit if not found service name or deployment environment
+#       run: |
+#         if [ ${{ steps.serviceNameAndDeployEnv.outputs.exit }} = 'true' ]
+#         then
+#           exit
+#         fi
+
+#     # - name: Install Go
+#     #   uses: actions/setup-go@v2
     
-    - name: Checkout code
-      uses: actions/checkout@v2
+#     - name: Checkout code
+#       uses: actions/checkout@v2
 
-    - name: Setup gcloud CLI
-      uses: google-github-actions/setup-gcloud@master
-      with:
-        version: '286.0.0'
-        service_account_email: ${{ env.GCP_SA_EMAIL }}
-        service_account_key: ${{ env.GCP_SA_KEY }}
-        project_id: ${{ env.GCP_PROJECT_ID }}
+#     - name: Setup gcloud CLI
+#       uses: google-github-actions/setup-gcloud@master
+#       with:
+#         version: '286.0.0'
+#         service_account_email: ${{ env.GCP_SA_EMAIL }}
+#         service_account_key: ${{ env.GCP_SA_KEY }}
+#         project_id: ${{ env.GCP_PROJECT_ID }}
 
-#        echo $SA_KEY > keyfile.json
-#        cat keyfile.json
-#        docker login -u _json_key --password-stdin https://gcr.io < keyfile.json
+#     - name: Build and push
+#       env:
+#         SERVICE_NAME: ${{ steps.serviceNameAndDeployEnv.outputs.serviceName }}
+#         DEPLOY_ENV: ${{ steps.serviceNameAndDeployEnv.outputs.deployEnv }}
+#       run: |
+#         gcloud auth configure-docker
+#         docker build --build-arg NAME=$SERVICE_NAME -t gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
+#         docker push gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
 
-#        env | grep SA_KEY
-#        echo "${{ secrets.GCP_SA_KEY }}" > keyfile.json
-#        ls -la
-#        gcloud auth activate-service-account kmitl-305310@$GCP_PROJECT_ID.iam.gserviceaccount.com --key-file=keyfile.json
+#     - name: Set GKE credential
+#       run: |
+#         gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_ZONE --project $GCP_PROJECT_ID
 
-      # uses: docker/build-push-action@v2
-    - name: Build and push
-      env:
-        SERVICE_NAME: ${{ steps.serviceNameAndDeployEnv.outputs.serviceName }}
-        DEPLOY_ENV: ${{ steps.serviceNameAndDeployEnv.outputs.deployEnv }}
-      run: |
-        gcloud auth configure-docker
-        docker build --build-arg NAME=$SERVICE_NAME -t gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
-        docker push gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
-
-
-    # gcloud container clusters get-credentials autopilot-cluster-1 --region us-central1 --project kmitl-305310
-    - name: Set GKE credential
-      run: |
-        gcloud container clusters get-credentials $GKE_CLUSTER --region $GKE_ZONE --project $GCP_PROJECT_ID
-      # uses: google-github-actions/get-gke-credentials@v0.2.1
-      # with:
-      #   cluster_name: ${{ secrets.GKE_CLUSTER }}
-      #   location: ${{ secrets.GKE_ZONE }}
-      #   credentials: ${{ secrets.GCP_SA_KEY }}
-
-    - name: Deploy to GKE cluster
-      env:
-        SERVICE_NAME: ${{ steps.serviceNameAndDeployEnv.outputs.serviceName }}
-        DEPLOY_ENV: ${{ steps.serviceNameAndDeployEnv.outputs.deployEnv }}
-      run: |
-        kubectl cluster-info
-        kubectl set image deployment/$SERVICE_NAME-$DEPLOY_ENV user=gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA --record
-        kubectl rollout status deployment/$SERVICE_NAME-$DEPLOY_ENV --timeout=30s
-
-    
-
-      # with:
-      #   context: .
-      #   # pull: true
-      #   push: true
-      #   build-args: |
-      #     NAME=$SERVICE_NAME
-      #   # cache-from: type=registry,ref=myorg/myrepository:latest
-      #   # cache-to: type=inline
-      #   tags: gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
-        # tags: myorg/myrepository:latest
-
-    # # Build and push image to Google Container Registry
-    # - name: Build
-    #   run: |-
-    #     gcloud builds submit \
-    #       --quiet \
-    #       --tag "gcr.io/$GCP_PROJECT_ID/${{ steps.deployEnv.outputs.result }}/${{ steps.serviceName.outputs.result }}:$GITHUB_SHA"
-    #       --substitutions _NAME=${{ steps.serviceName.outputs.result }}
-
+#     - name: Deploy to GKE cluster
+#       env:
+#         SERVICE_NAME: ${{ steps.serviceNameAndDeployEnv.outputs.serviceName }}
+#         DEPLOY_ENV: ${{ steps.serviceNameAndDeployEnv.outputs.deployEnv }}
+#       run: |
+#         kubectl cluster-info
+#         kubectl set image deployment/$SERVICE_NAME-$DEPLOY_ENV user=gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA --record
+#         kubectl rollout status deployment/$SERVICE_NAME-$DEPLOY_ENV --timeout=30s
