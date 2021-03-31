@@ -76,7 +76,9 @@ jobs:
         run: docker build --build-arg NAME=$SERVICE_NAME -t gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
       
       - name: Docker push
-        run: docker push gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
+        run: |
+          gcloud auth configure-docker
+          docker push gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
 
 
 
