@@ -32,7 +32,7 @@ jobs:
           # caCertificate: ${{ secrets.VAULTCA }}
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
-            /secrets/kv/poc-github-actions DEVELOPMENT_GCP_PROJECT_ID | DEVELOPMENT_GCP_PROJECT_ID;
+            /kv/poc-github-actions DEVELOPMENT_GCP_PROJECT_ID | DEVELOPMENT_GCP_PROJECT_ID;
 
 
 
