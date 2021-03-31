@@ -23,7 +23,7 @@ jobs:
   app:
     runs-on: ubuntu-latest
     steps:
-      - use: ./github/actions/job.yaml
+      - uses: ./github/actions/job.yaml
       # - name: Import Secrets
       #   uses: hashicorp/vault-action@v2.1.2
       #   env:
