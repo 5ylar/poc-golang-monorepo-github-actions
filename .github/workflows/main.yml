@@ -42,12 +42,19 @@ jobs:
             /poc/github-actions/development GKE_CLUSTER | GKE_CLUSTER;
             /poc/github-actions/development GKE_ZONE | GKE_ZONE;
 
-      - uses: ./.github/actions/job
+      # - uses: ./.github/actions/job
       
       - name: test 
         run: |
           echo ${{ steps.secrets.outputs.DEVELOPMENT_GCP_PROJECT_ID }}
 
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          version: '286.0.0'
+          service_account_email: ${{ steps.secrets.outputs.GCP_SA_EMAIL }}
+          service_account_key: ${{ steps.secrets.outputs.GCP_SA_KEY }}
+          project_id: ${{ steps.secrets.outputs.GCP_PROJECT_ID }}
 
 
 # env:
