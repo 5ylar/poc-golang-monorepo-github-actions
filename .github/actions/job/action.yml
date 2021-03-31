@@ -9,5 +9,5 @@ runs:
     shell: bash
   - name: test 
       run: |
-        echo ${{ steps.secrets.outputs.GCP_PROJECT_ID }}
+        echo "zzz"
     shell: bash
