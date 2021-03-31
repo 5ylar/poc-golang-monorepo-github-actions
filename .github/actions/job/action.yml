@@ -10,3 +10,4 @@ runs:
   - name: test 
       run: |
         echo ${{ steps.secrets.outputs.GCP_PROJECT_ID }}
+    shell: bash
