@@ -13,14 +13,6 @@ on:
       - dev-service/user
       - dev-service/foo
 
-env:
-  SERVICE_NAME:  ${{ secrets.SERVICE_NAME }}
-  GCP_SA_EMAIL:  ${{ secrets.GCP_SA_EMAIL }}
-  GCP_SA_KEY:  ${{ secrets.GCP_SA_KEY }}
-  GCP_PROJECT_ID:  ${{ secrets.GCP_PROJECT_ID }}
-  GKE_CLUSTER:  ${{ secrets.GKE_CLUSTER }}
-  GKE_ZONE:  ${{ secrets.GKE_ZONE }}
-
 # DEVELOPMENT_GCP_PROJECT_ID
 # DEVELOPMENT_GCP_SA_EMAIL
 # DEVELOPMENT_GCP_SA_KEY
@@ -39,13 +31,21 @@ jobs:
           method: token
           # caCertificate: ${{ secrets.VAULTCA }}
           token: ${{ secrets.VAULT_TOKEN }}
+          secrets: |
+            /secrets/kv/poc-github-actions DEVELOPMENT_GCP_PROJECT_ID | DEVELOPMENT_GCP_PROJECT_ID;
 
 
 
 
 
 
-
+# env:
+#   SERVICE_NAME:  ${{ secrets.SERVICE_NAME }}
+#   GCP_SA_EMAIL:  ${{ secrets.GCP_SA_EMAIL }}
+#   GCP_SA_KEY:  ${{ secrets.GCP_SA_KEY }}
+#   GCP_PROJECT_ID:  ${{ secrets.GCP_PROJECT_ID }}
+#   GKE_CLUSTER:  ${{ secrets.GKE_CLUSTER }}
+#   GKE_ZONE:  ${{ secrets.GKE_ZONE }}
 
 
 
