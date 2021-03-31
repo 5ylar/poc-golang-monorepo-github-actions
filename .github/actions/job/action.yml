@@ -10,5 +10,5 @@ runs:
 
   - name: test 
     run: |
-        echo ${{ context.steps.secrets.outputs.GCP_PROJECT_ID }}
+        echo ${{ steps.secrets.outputs.GCP_PROJECT_ID }}
     shell: bash
