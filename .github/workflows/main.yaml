@@ -33,7 +33,9 @@ jobs:
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
             /poc/poc-github-actions DEVELOPMENT_GCP_PROJECT_ID | DEVELOPMENT_GCP_PROJECT_ID;
-
+      - name: test 
+        run: |
+          echo ${{ steps.secrets.outputs.DEVELOPMENT_GCP_PROJECT_ID }}
 
 # env:
 #   SERVICE_NAME:  ${{ secrets.SERVICE_NAME }}
