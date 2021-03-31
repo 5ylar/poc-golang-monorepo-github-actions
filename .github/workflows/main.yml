@@ -47,9 +47,11 @@ jobs:
       
       - name: test 
         uses: actions/github-script@v3
+        env:
+          GCP_PROJECT_ID: ${{ steps.secrets.outputs.GCP_PROJECT_ID }}
         with:
           script: |
-            console.log("steps.secrets.outputs.GCP_PROJECT_ID",steps.secrets.outputs.GCP_PROJECT_ID)
+            console.log("steps.secrets.outputs.GCP_PROJECT_ID", process.env.GCP_PROJECT_ID)
       # - name: test 
       #   run: |
       #     echo ${{ steps.secrets.outputs.DEVELOPMENT_GCP_PROJECT_ID }}
