@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Import Secrets
-        uses: hashicorp/vault-action
+        uses: hashicorp/vault-action@2.0.1
         with:
           url: https://vault.api-fillgoods.com
           # /ui/vault/secrets/kv/show/poc-github-actions
