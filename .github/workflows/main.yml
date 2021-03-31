@@ -44,9 +44,9 @@ jobs:
 
       - uses: ./.github/actions/job
       
-      # - name: test 
-      #   run: |
-      #     echo ${{ steps.secrets.outputs.DEVELOPMENT_GCP_PROJECT_ID }}
+      - name: test 
+        run: |
+          echo ${{ steps.secrets.outputs.DEVELOPMENT_GCP_PROJECT_ID }}
 
 
 
