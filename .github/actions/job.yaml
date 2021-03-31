@@ -1,0 +1,8 @@
+name: "Job"
+description: ""
+runs:
+  using: "composite"
+  steps: 
+  - run: |
+      echo "Executing action"
+    shell: bash
