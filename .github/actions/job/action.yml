@@ -7,3 +7,6 @@ runs:
       echo "Executing action"
       ls -la
     shell: bash
+  - name: test 
+      run: |
+        echo ${{ steps.secrets.outputs.GCP_PROJECT_ID }}

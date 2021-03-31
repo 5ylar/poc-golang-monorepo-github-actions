@@ -24,19 +24,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Import Secrets
+        uses: hashicorp/vault-action@v2.1.2
+        env:
+          DEPLOY_ENV: sds
+        with:
+          url: https://vault.api-fillgoods.com
+          # /ui/vault/secrets/kv/show/poc-github-actions
+          method: token
+          # caCertificate: ${{ secrets.VAULTCA }}
+          token: ${{ secrets.VAULT_TOKEN }}
+          secrets: |
+            /poc/github-actions/development GCP_PROJECT_ID | GCP_PROJECT_ID;
+            /poc/github-actions/development GCP_SA_EMAIL | GCP_SA_EMAIL;
+            /poc/github-actions/development GCP_SA_KEY | GCP_SA_KEY;
+            /poc/github-actions/development GKE_CLUSTER | GKE_CLUSTER;
+            /poc/github-actions/development GKE_ZONE | GKE_ZONE;
+
       - uses: ./.github/actions/job
-      # - name: Import Secrets
-      #   uses: hashicorp/vault-action@v2.1.2
-      #   env:
-      #     DEPLOY_ENV: sds
-      #   with:
-      #     url: https://vault.api-fillgoods.com
-      #     # /ui/vault/secrets/kv/show/poc-github-actions
-      #     method: token
-      #     # caCertificate: ${{ secrets.VAULTCA }}
-      #     token: ${{ secrets.VAULT_TOKEN }}
-      #     secrets: |
-      #       /poc/poc-github-actions DEVELOPMENT_GCP_PROJECT_ID | DEVELOPMENT_GCP_PROJECT_ID;
+      
       # - name: test 
       #   run: |
       #     echo ${{ steps.secrets.outputs.DEVELOPMENT_GCP_PROJECT_ID }}
