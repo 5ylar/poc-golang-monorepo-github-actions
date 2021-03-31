@@ -13,17 +13,17 @@ on:
       - dev-service/user
       - dev-service/foo
 
-# DEVELOPMENT_GCP_PROJECT_ID
-# DEVELOPMENT_GCP_SA_EMAIL
-# DEVELOPMENT_GCP_SA_KEY
-# DEVELOPMENT_GKE_CLUSTER
-# DEVELOPMENT_GKE_ZONE
-
 jobs:
   app:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Set environment variables
+        uses: allenevans/set-env@v2.0.0
+        with:
+          SERVICE_NAME: "user"
+          DEPLOY_ENV: "development"
 
       - name: Import Secrets
         id: secrets
@@ -32,9 +32,7 @@ jobs:
           DEPLOY_ENV: sds
         with:
           url: https://vault.api-fillgoods.com
-          # /ui/vault/secrets/kv/show/poc-github-actions
           method: token
-          # caCertificate: ${{ secrets.VAULTCA }}
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
             /poc/github-actions/development GCP_PROJECT_ID | GCP_PROJECT_ID;
@@ -43,15 +41,22 @@ jobs:
             /poc/github-actions/development GKE_CLUSTER | GKE_CLUSTER;
             /poc/github-actions/development GKE_ZONE | GKE_ZONE;
 
-      - uses: ./.github/actions/job
-      
-      - name: test 
-        uses: actions/github-script@v3
-        env:
-          GCP_PROJECT_ID: ${{ steps.secrets.outputs.GCP_PROJECT_ID }}
+      - name: Set environment variables
+        uses: allenevans/set-env@v2.0.0
         with:
-          script: |
-            console.log("steps.secrets.outputs.GCP_PROJECT_ID", process.env.GCP_PROJECT_ID)
+          GCP_PROJECT_ID: ${{ steps.secrets.outputs.GCP_PROJECT_ID }}
+          GCP_SA_EMAIL: ${{ steps.secrets.outputs.GCP_SA_EMAIL }}
+          GCP_SA_KEY: ${{ steps.secrets.outputs.GCP_SA_KEY }}
+          GKE_CLUSTER: ${{ steps.secrets.outputs.GKE_CLUSTER }}
+          GKE_ZONE: ${{ steps.secrets.outputs.GKE_ZONE }}
+
+      # - uses: ./.github/actions/job
+      
+      # - name: test 
+      #   uses: actions/github-script@v3
+      #   with:
+      #     script: |
+      #       console.log("steps.secrets.outputs.GCP_PROJECT_ID", process.env.GCP_PROJECT_ID)
       # - name: test 
       #   run: |
       #     echo ${{ steps.secrets.outputs.DEVELOPMENT_GCP_PROJECT_ID }}
@@ -60,9 +65,17 @@ jobs:
         uses: google-github-actions/setup-gcloud@master
         with:
           version: '286.0.0'
-          service_account_email: ${{ steps.secrets.outputs.GCP_SA_EMAIL }}
-          service_account_key: ${{ steps.secrets.outputs.GCP_SA_KEY }}
-          project_id: ${{ steps.secrets.outputs.GCP_PROJECT_ID }}
+          service_account_email: ${{ env.GCP_SA_EMAIL }}
+          service_account_key: ${{ env.GCP_SA_KEY }}
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      # - name: Docker authentication
+      #   run: gcloud auth configure-docker
+
+      # - name: Docker build
+      #   run: docker build --build-arg NAME=$SERVICE_NAME -t gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
+
+      
 
 
 # env:
