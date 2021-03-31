@@ -5,4 +5,5 @@ runs:
   steps: 
   - run: |
       echo "Executing action"
+      ls -la
     shell: bash
