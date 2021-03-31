@@ -43,7 +43,7 @@ jobs:
             /poc/github-actions/development GKE_CLUSTER | GKE_CLUSTER;
             /poc/github-actions/development GKE_ZONE | GKE_ZONE;
 
-      # - uses: ./.github/actions/job
+      - uses: ./.github/actions/job
       
       - name: test 
         uses: actions/github-script@v3
