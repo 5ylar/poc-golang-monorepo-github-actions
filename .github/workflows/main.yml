@@ -61,7 +61,7 @@ jobs:
         with:
           version: '286.0.0'
           service_account_email: ${{ steps.secrets.outputs.GCP_SA_EMAIL }}
-          service_account_key: ${{ steps.secrets.outputs.GCP_SA_EMAIL }}
+          service_account_key: ${{ steps.secrets.outputs.GCP_SA_KEY }}
           project_id: ${{ steps.secrets.outputs.GCP_PROJECT_ID }}
 
 
