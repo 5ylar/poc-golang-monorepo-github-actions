@@ -35,11 +35,11 @@ jobs:
           method: token
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
-            /poc/github-actions/${{ env.DEPLOY_ENV }} GCP_PROJECT_ID | GCP_PROJECT_ID;
-            /poc/github-actions/${{ env.DEPLOY_ENV }} GCP_SA_EMAIL | GCP_SA_EMAIL;
-            /poc/github-actions/${{ env.DEPLOY_ENV }} GCP_SA_KEY | GCP_SA_KEY;
-            /poc/github-actions/${{ env.DEPLOY_ENV }} GKE_CLUSTER | GKE_CLUSTER;
-            /poc/github-actions/${{ env.DEPLOY_ENV }} GKE_ZONE | GKE_ZONE;
+            /poc/github-actions/$DEPLOY_ENV GCP_PROJECT_ID | GCP_PROJECT_ID;
+            /poc/github-actions/$DEPLOY_ENV GCP_SA_EMAIL | GCP_SA_EMAIL;
+            /poc/github-actions/$DEPLOY_ENV GCP_SA_KEY | GCP_SA_KEY;
+            /poc/github-actions/$DEPLOY_ENV GKE_CLUSTER | GKE_CLUSTER;
+            /poc/github-actions/$DEPLOY_ENV GKE_ZONE | GKE_ZONE;
 
       - name: Set environment variables
         uses: allenevans/set-env@v2.0.0
