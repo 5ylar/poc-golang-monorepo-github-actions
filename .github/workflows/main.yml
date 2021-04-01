@@ -14,77 +14,94 @@ on:
       - dev-service/foo
 
 jobs:
-  app:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v2
 
-      - name: Set environment variables
-        uses: allenevans/set-env@v2.0.0
-        with:
-          SERVICE_NAME: "user"
-          DEPLOY_ENV: "development"
+  #     - name: Set environment variables
+  #       uses: allenevans/set-env@v2.0.0
+  #       with:
+  #         SERVICE_NAME: "user"
+  #         DEPLOY_ENV: "development"
 
-      - name: Import Secrets
-        id: secrets
-        uses: hashicorp/vault-action@v2.1.2
-        env:
-          DEPLOY_ENV: sds
-        with:
-          url: https://vault.api-fillgoods.com
-          method: token
-          token: ${{ secrets.VAULT_TOKEN }}
-          secrets: |
-            /poc/github-actions/${{ env.DEPLOY_ENV }} GCP_PROJECT_ID | GCP_PROJECT_ID;
-            /poc/github-actions/${{ env.DEPLOY_ENV }} GCP_SA_EMAIL | GCP_SA_EMAIL;
-            /poc/github-actions/${{ env.DEPLOY_ENV }} GCP_SA_KEY | GCP_SA_KEY;
-            /poc/github-actions/${{ env.DEPLOY_ENV }} GKE_CLUSTER | GKE_CLUSTER;
-            /poc/github-actions/${{ env.DEPLOY_ENV }} GKE_ZONE | GKE_ZONE;
+  #     - name: Import Secrets
+  #       id: secrets
+  #       uses: hashicorp/vault-action@v2.1.2
+  #       env:
+  #         DEPLOY_ENV: sds
+  #       with:
+  #         url: https://vault.api-fillgoods.com
+  #         method: token
+  #         token: ${{ secrets.VAULT_TOKEN }}
+  #         secrets: |
+  #           /poc/github-actions/${{ env.DEPLOY_ENV }} GCP_PROJECT_ID | GCP_PROJECT_ID;
+  #           /poc/github-actions/${{ env.DEPLOY_ENV }} GCP_SA_EMAIL | GCP_SA_EMAIL;
+  #           /poc/github-actions/${{ env.DEPLOY_ENV }} GCP_SA_KEY | GCP_SA_KEY;
+  #           /poc/github-actions/${{ env.DEPLOY_ENV }} GKE_CLUSTER | GKE_CLUSTER;
+  #           /poc/github-actions/${{ env.DEPLOY_ENV }} GKE_ZONE | GKE_ZONE;
 
-      - name: Set environment variables
-        uses: allenevans/set-env@v2.0.0
-        with:
-          GCP_PROJECT_ID: ${{ steps.secrets.outputs.GCP_PROJECT_ID }}
-          GCP_SA_EMAIL: ${{ steps.secrets.outputs.GCP_SA_EMAIL }}
-          GCP_SA_KEY: ${{ steps.secrets.outputs.GCP_SA_KEY }}
-          GKE_CLUSTER: ${{ steps.secrets.outputs.GKE_CLUSTER }}
-          GKE_ZONE: ${{ steps.secrets.outputs.GKE_ZONE }}
-
-      # - uses: ./.github/actions/job
-      
-      # - name: test 
-      #   uses: actions/github-script@v3
+      # - name: Set environment variables
+      #   uses: allenevans/set-env@v2.0.0
       #   with:
-      #     script: |
-      #       console.log("steps.secrets.outputs.GCP_PROJECT_ID", process.env.GCP_PROJECT_ID)
-      # - name: test 
-      #   run: |
-      #     echo ${{ steps.secrets.outputs.DEVELOPMENT_GCP_PROJECT_ID }}
+      #     GCP_PROJECT_ID: ${{ steps.secrets.outputs.GCP_PROJECT_ID }}
+      #     GCP_SA_EMAIL: ${{ steps.secrets.outputs.GCP_SA_EMAIL }}
+      #     GCP_SA_KEY: ${{ steps.secrets.outputs.GCP_SA_KEY }}
+      #     GKE_CLUSTER: ${{ steps.secrets.outputs.GKE_CLUSTER }}
+      #     GKE_ZONE: ${{ steps.secrets.outputs.GKE_ZONE }}
 
-      - name: Setup gcloud CLI
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          version: '286.0.0'
-          service_account_email: ${{ env.GCP_SA_EMAIL }}
-          service_account_key: ${{ env.GCP_SA_KEY }}
-          project_id: ${{ env.GCP_PROJECT_ID }}
+      # - name: Setup gcloud CLI
+      #   uses: google-github-actions/setup-gcloud@master
+      #   with:
+      #     version: '286.0.0'
+      #     service_account_email: ${{ env.GCP_SA_EMAIL }}
+      #     service_account_key: ${{ env.GCP_SA_KEY }}
+      #     project_id: ${{ env.GCP_PROJECT_ID }}
 
-      - name: Docker authentication
-        run: gcloud auth configure-docker
+      # - name: Docker authentication
+      #   run: gcloud auth configure-docker
 
-      - name: Docker build
-        run: docker build --build-arg NAME=$SERVICE_NAME -t gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
+      # - name: Docker build
+      #   run: docker build --build-arg NAME=$SERVICE_NAME -t gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA .
       
-      - name: Docker push
-        run: |
-          docker push gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
+      # - name: Docker push
+      #   run: |
+      #     docker push gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
+
+  deploy:
+    runs-on: ubuntu-latest
+    # needs: build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          repository: https://github.com/5ylar/lab-golang-monorepo-github-actions-gitops.git
+
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v1
+        with:
+          kustomize-version: "3.6.1"
 
       - name: Set deployment container image
-        run: ""
+        run: |
+         cd $DEPLOY_ENV
+         kustomize edit set image $SERVICE_NAME=gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
+         cat kustomization.yaml
 
-      - name: Update deployment version
-        run: ""
+      # - name: Commit files
+      #   run: |
+      #     git config --local user.email "action@github.com"
+      #     git config --local user.name "GitHub Action"
+      #     git commit -am "Update container image"
 
+      # - name: Push changes
+      #   uses: ad-m/github-push-action@master
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Update deployment version
+      #   run: ""
 # env:
 #   SERVICE_NAME:  ${{ secrets.SERVICE_NAME }}
 #   GCP_SA_EMAIL:  ${{ secrets.GCP_SA_EMAIL }}
