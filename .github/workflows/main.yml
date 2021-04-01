@@ -107,7 +107,7 @@ jobs:
 
       - name: Set deployment container image
         run: |
-         cd $DEPLOY_ENV
+         cd $DEPLOY_ENV/$SERVICE_NAME
          kustomize edit set image $SERVICE_NAME=gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
          cat kustomization.yaml
 
