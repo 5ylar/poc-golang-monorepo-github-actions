@@ -77,10 +77,13 @@ jobs:
       
       - name: Docker push
         run: |
-          gcloud auth configure-docker
           docker push gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
 
+      - name: Set deployment container image
+        run: ""
 
+      - name: Update deployment version
+        run: ""
 
 # env:
 #   SERVICE_NAME:  ${{ secrets.SERVICE_NAME }}
