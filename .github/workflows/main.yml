@@ -91,6 +91,7 @@ jobs:
           method: token
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
+            /poc/github-actions/${{ env.DEPLOY_ENV }} GCP_PROJECT_ID | GCP_PROJECT_ID;
             /poc/github-actions/${{ env.DEPLOY_ENV }} GITHUB_ACTION_TOKEN_GITOPS | GITHUB_ACTION_TOKEN_GITOPS;
   
       - name: Check out code
@@ -111,16 +112,16 @@ jobs:
          kustomize edit set image $SERVICE_NAME=gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
          cat kustomization.yaml
 
-      # - name: Commit files
-      #   run: |
-      #     git config --local user.email "action@github.com"
-      #     git config --local user.name "GitHub Action"
-      #     git commit -am "Update container image"
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "Update container image"
 
-      # - name: Push changes
-      #   uses: ad-m/github-push-action@master
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_ACTION_TOKEN_GITOPS }}
 
       # - name: Update deployment version
       #   run: ""
