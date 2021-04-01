@@ -122,7 +122,7 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           branch: master
-          repository: 5ylar/lab-golang-monorepo-github-actions-gitops.git
+          repository: 5ylar/lab-golang-monorepo-github-actions-gitops
           github_token: ${{ steps.secrets.outputs.GITHUB_ACTION_TOKEN_GITOPS }}
 
       # - name: Update deployment version
