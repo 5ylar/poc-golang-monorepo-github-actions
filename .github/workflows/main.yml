@@ -123,7 +123,7 @@ jobs:
         with:
           branch: master
           repository: 5ylar/lab-golang-monorepo-github-actions-gitops.git
-          github_token: ${{ secrets.GITHUB_ACTION_TOKEN_GITOPS }}
+          github_token: ${{ steps.secrets.outputs.GITHUB_ACTION_TOKEN_GITOPS }}
 
       # - name: Update deployment version
       #   run: ""
