@@ -29,8 +29,6 @@ jobs:
   #     - name: Import Secrets
   #       id: secrets
   #       uses: hashicorp/vault-action@v2.1.2
-  #       env:
-  #         DEPLOY_ENV: sds
   #       with:
   #         url: https://vault.api-fillgoods.com
   #         method: token
@@ -73,15 +71,28 @@ jobs:
     runs-on: ubuntu-latest
     # needs: build
     steps:
-      # - name: Check out code
-      #   uses: actions/checkout@v2
-      #   with:
-      #     ref: master
-      #     repository: 5ylar/lab-golang-monorepo-github-actions-gitops.git
-      - name: Clone gitops repository
-        run: |
-          ls ~/.ssh
-          git clone https://github.com/5ylar/lab-golang-monorepo-github-actions-gitops.git
+      
+      # - name: Clone gitops repository
+      #   run: |
+      #     ls ~/.ssh
+      #     git clone https://github.com/5ylar/lab-golang-monorepo-github-actions-gitops
+
+      - name: Import Secrets
+        id: secrets
+        uses: hashicorp/vault-action@v2.1.2
+        with:
+          url: https://vault.api-fillgoods.com
+          method: token
+          token: ${{ secrets.VAULT_TOKEN }}
+          secrets: |
+            /poc/github-actions/${{ env.DEPLOY_ENV }} GITHUB_ACTION_TOKEN_GITOPS | GITHUB_ACTION_TOKEN_GITOPS;
+  
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          ref: master
+          repository: 5ylar/lab-golang-monorepo-github-actions-gitops.git
+          token: ${{ steps.secrets.outputs.GITHUB_ACTION_TOKEN_GITOPS }}
 
       - name: Setup Kustomize
         uses: imranismail/setup-kustomize@v1
