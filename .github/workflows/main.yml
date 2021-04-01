@@ -77,7 +77,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: master
-          repository: 5ylar/lab-golang-monorepo-github-actions-gitops
+          repository: 5ylar/lab-golang-monorepo-github-actions-gitops.git
 
       - name: Setup Kustomize
         uses: imranismail/setup-kustomize@v1
