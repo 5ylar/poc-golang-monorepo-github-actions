@@ -73,11 +73,14 @@ jobs:
     runs-on: ubuntu-latest
     # needs: build
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-        with:
-          ref: master
-          repository: 5ylar/lab-golang-monorepo-github-actions-gitops.git
+      # - name: Check out code
+      #   uses: actions/checkout@v2
+      #   with:
+      #     ref: master
+      #     repository: 5ylar/lab-golang-monorepo-github-actions-gitops.git
+      - name: Clone gitops repository
+        run: |
+          git clone https://github.com/5ylar/lab-golang-monorepo-github-actions-gitops.git
 
       - name: Setup Kustomize
         uses: imranismail/setup-kustomize@v1
