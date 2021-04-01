@@ -77,6 +77,12 @@ jobs:
       #     ls ~/.ssh
       #     git clone https://github.com/5ylar/lab-golang-monorepo-github-actions-gitops
 
+      - name: Set environment variables
+        uses: allenevans/set-env@v2.0.0
+        with:
+          SERVICE_NAME: "user"
+          DEPLOY_ENV: "development"
+
       - name: Import Secrets
         id: secrets
         uses: hashicorp/vault-action@v2.1.2
