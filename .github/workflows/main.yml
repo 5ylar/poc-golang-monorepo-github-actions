@@ -80,6 +80,7 @@ jobs:
       #     repository: 5ylar/lab-golang-monorepo-github-actions-gitops.git
       - name: Clone gitops repository
         run: |
+          ls ~/.ssh
           git clone https://github.com/5ylar/lab-golang-monorepo-github-actions-gitops.git
 
       - name: Setup Kustomize
