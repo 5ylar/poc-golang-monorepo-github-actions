@@ -1,12 +1,12 @@
 name: MonoRepo
 
 on:
-  push:
-    branches:
-      - service/user
-      - service/foo
-      - dev-service/user
-      - dev-service/foo
+  # push:
+    # branches:
+    #   - service/user
+    #   - service/foo
+    #   - dev-service/user
+    #   - dev-service/foo
   pull_request:
     branches:
       - service/user
@@ -70,14 +70,26 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Test set env
+      - name: Set environment variables
         uses: allenevans/set-env@v2.0.0
         with:
-          MYNAME: PPP
+          SERVICE_NAME: user
+          DEPLOY_ENV: development
+
+      - name: Check out code
+        uses: actions/checkout@v2
+  
+      - name: Setup go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.16
+  
+      - name: Run test
+        run: go test ./services/$SERVICE_NAME/...
 
   deploy:
     runs-on: ubuntu-latest
-    # needs: build
+    needs: test
     steps:
 
       - name: Set environment variables
@@ -85,7 +97,7 @@ jobs:
         with:
           SERVICE_NAME: user
           DEPLOY_ENV: development
-          GITOPS_REPO: 5ylar/lab-golang-monorepo-github-actions-gitops.git
+          GITOPS_REPO: 5ylar/lab-golang-monorepo-github-actions-gitops
 
       - name: Import Secrets
         id: secrets
@@ -112,9 +124,6 @@ jobs:
 
       - name: Set deployment container image
         run: |
-         echo "MY NAME is $MYNAME"
-         echo "DEPLOY ENV is $DEPLOY_ENV"
-         
          cd $DEPLOY_ENV/$SERVICE_NAME
          kustomize edit set image gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME=gcr.io/$GCP_PROJECT_ID/$DEPLOY_ENV/$SERVICE_NAME:$GITHUB_SHA
          cat kustomization.yaml
