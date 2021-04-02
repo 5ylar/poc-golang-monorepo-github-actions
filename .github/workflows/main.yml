@@ -1,12 +1,12 @@
 name: MonoRepo
 
 on:
-  # push:
-    # branches:
-    #   - service/user
-    #   - service/foo
-    #   - dev-service/user
-    #   - dev-service/foo
+  push:
+    branches:
+      - service/user
+      - service/foo
+      - dev-service/user
+      - dev-service/foo
   pull_request:
     branches:
       - service/user
