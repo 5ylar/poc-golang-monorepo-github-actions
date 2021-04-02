@@ -13,6 +13,8 @@ on:
       - dev-service/user
       - dev-service/foo
 
+env:
+  VAULT_URL: https://vault.api-fillgoods.com
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,7 +32,7 @@ jobs:
         id: secrets
         uses: hashicorp/vault-action@v2.1.2
         with:
-          url: https://vault.api-fillgoods.com
+          url: ${{ env.VAULT_URL }}
           method: token
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
@@ -104,7 +106,7 @@ jobs:
         id: secrets
         uses: hashicorp/vault-action@v2.1.2
         with:
-          url: https://vault.api-fillgoods.com
+          url: ${{ env.VAULT_URL }}
           method: token
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
