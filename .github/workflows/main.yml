@@ -7,11 +7,11 @@ on:
       - service/foo
       - dev-service/user
       - dev-service/foo
-  # pull_request:
-  #   branches:
-  #     - service/user
-  #     - dev-service/user
-  #     - dev-service/foo
+  pull_request:
+    branches:
+      - service/user
+      - dev-service/user
+      - dev-service/foo
 
 jobs:
   build:
